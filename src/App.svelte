@@ -1,30 +1,66 @@
 <script>
-	export let name;
+	import { todos } from '@/store/todo.js'
+	import TodoCell from './components/TodoCell.svelte'
+
+	function onSubmitTodo() {
+		$todos = [...$todos, {
+			text: todo,
+			unique: Date.now()
+		}]
+		todo = ''
+	}
+
+	function onDeleteTodo({ detail }) {
+		$todos = $todos.filter((todo) => todo.unique !== detail.unique)
+	}
+
+	$: {
+		localStorage.setItem('todos', JSON.stringify($todos))
+	}
+
+	const loadedData = JSON.parse(localStorage.getItem('todos'))
+	if (loadedData) {
+		$todos = loadedData
+	}
+
+	let todo = ''
 </script>
 
-<main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+<main id="app">
+	<h1>
+		Simple Svelte<br>
+		Todo list
+	</h1>
+	<form on:submit|preventDefault={onSubmitTodo}>
+		<input class="todo-input" bind:value={todo} placeholder="할 일을 입력해주세요!" />
+	</form>
+	{#each $todos as todo (todo.unique) }
+		<TodoCell todo={todo} on:delete={onDeleteTodo} />
+	{/each}
 </main>
 
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
+#app {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	max-width: 50rem;
+	padding: 16px;
+	margin: 0 auto;
+}
 
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
+h1 {
+	text-align: center;
+}
 
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
+.todo-input {
+	width: 100%;
+	padding: 16px;
+  border: 1px solid #dee2e6;
+  border-radius: 3rem;
+	font-size: 1.5em;
+	text-align: center;
+	background-color: white;
+	margin-top: 16px;
+}
 </style>

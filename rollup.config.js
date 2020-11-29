@@ -1,6 +1,7 @@
 import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
+import alias from '@rollup/plugin-alias';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
@@ -28,6 +29,13 @@ function serve() {
 	};
 }
 
+const aliases = alias({
+  resolve: ['.svelte', '.js'],
+  entries: [
+    { find: '@', replacement: 'src' }
+  ]
+});
+
 export default {
 	input: 'src/main.js',
 	output: {
@@ -37,6 +45,7 @@ export default {
 		file: 'public/build/bundle.js'
 	},
 	plugins: [
+		aliases,
 		svelte({
 			compilerOptions: {
 				// enable run-time checks when not in production
